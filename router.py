@@ -15,29 +15,24 @@ server 2: 95
 '''
 python3 router.py router_ip server_1_ip server_2_ip 
 '''
-
-print(sys.argv)
+UDP_PORT = 5005
 
 routing_table = {
-  '1': ('192.168.1.' + sys.argv[2], 5005),
-  '2': ('192.168.1.' + sys.argv[3], 5005),
+  '1': ('192.168.1.%s' % (sys.argv[2]), UDP_PORT),
+  '2': ('192.168.1.%s' % (sys.argv[3]), UDP_PORT),
 }
-print('192.168.1.' + sys.argv[1])
+print('192.168.1.%s' % (sys.argv[1]))
 
-sock.bind(('192.168.1.' + sys.argv[1], 5005))
+sock.bind(('192.168.1.%s' % (sys.argv[1]), UDP_PORT))
 
 while True:
-  print('\nwaiting to receive message')
+  print('\nWaiting to receive message:')
   data, address = sock.recvfrom(4096)
 
-  print('received %s bytes from %s' % (len(data), address))
+  print('Received %s bytes from %s' % (len(data), address))
   print(data)
 
   data_json = json.loads(data.decode('raw_unicode_escape'))
-
-  # data in JSON format
-  # destination
-  # message
 
   if data_json:
     # Forward to servers
