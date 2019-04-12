@@ -42,7 +42,7 @@ while True:
     # Forward to servers
     server_num = data_json['destination']
     server_msg = data_json['message']
-    destination_addr = routing_table[destination_addr]
+    destination_addr = routing_table[server_num]
 
     server_sent = sock.sendto(server_msg, destination_addr)
 
