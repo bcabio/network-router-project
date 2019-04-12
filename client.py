@@ -1,5 +1,6 @@
 import socket
 import json
+import sys
 
 
 # Convert IP to hex
@@ -8,7 +9,7 @@ def ip2hex(ip):
     return ip1
 
 
-DEST_UDP_IP = "192.168.1.122"
+DEST_UDP_IP = "192.168.1." + sys.argv[1]
 UDP_PORT = 5005
 
 message = {
