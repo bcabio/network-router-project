@@ -13,8 +13,9 @@ server 2: 95
 '''
 
 '''
-python3 router.py routerip server1ip server2ip 
+python3 router.py router_ip server_1_ip server_2_ip 
 '''
+
 print(sys.argv)
 
 routing_table = {

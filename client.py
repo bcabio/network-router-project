@@ -2,6 +2,12 @@ import socket
 import json
 import sys
 
+'''
+Use:
+
+python3 client.py last_byte_router_ip destination_num
+'''
+
 
 # Convert IP to hex
 def ip2hex(ip):
