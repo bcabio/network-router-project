@@ -8,11 +8,11 @@ def ip2hex(ip):
     return ip1
 
 
-DEST_UDP_IP = "192.168.1.122"
+routers_ip = "192.168.1.140"
 UDP_PORT = 5005
 
 message = {
-    "destination": socket.inet_aton(DEST_UDP_IP).hex().upper(),
+    "destination": 1,
     "message": "Hello, this is a client"
 }
 
@@ -20,4 +20,4 @@ message = {
 print("Sending " + json.dumps(message))
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-sock.sendto(json.dumps(message).encode('raw_unicode_escape'), (DEST_UDP_IP, UDP_PORT))
+sock.sendto(json.dumps(message).encode('raw_unicode_escape'), (routers_ip, UDP_PORT))
