@@ -41,7 +41,7 @@ while True:
   if data_json:
     # Forward to servers
     server_num = data_json['destination']
-    server_msg = data_json['message']
+    server_msg = data_json['message'].encode('raw_unicode_escape')
     destination_addr = routing_table[server_num]
 
     server_sent = sock.sendto(server_msg, destination_addr)
