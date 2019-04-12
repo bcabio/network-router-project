@@ -16,7 +16,7 @@ routing_table = {
   '2': ('192.168.1.95', 10002),
 }
 
-sock.bind(('localhost', 10000))
+sock.bind(('192.168.1.140', 10000))
 
 while True:
   print('\nwaiting to receive message')
@@ -40,4 +40,4 @@ while True:
     server_sent = sock.sendto(server_msg, destination_addr)
 
     # sent = sock.sendto(data, address)
-    print('sent %s bytes back to %s' % (sent, address))
+    print('sent %s bytes forward to %s' % (sent, address))
