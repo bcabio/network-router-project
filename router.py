@@ -4,17 +4,26 @@ import json
 
 # Create a TCP/IP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+'''
+client 1: 102
+
+router : 140
+server 1: 122
+server 2: 95
+'''
 
 '''
 python3 router.py routerip server1ip server2ip 
 '''
+print(sys.argv)
 
 routing_table = {
-  '1': ('192.168.1.' + sys.argv[1], 5005),
-  '2': ('192.168.1.' + sys.argv[2], 5005),
+  '1': ('192.168.1.' + sys.argv[2], 5005),
+  '2': ('192.168.1.' + sys.argv[3], 5005),
 }
+print('192.168.1.' + sys.argv[1])
 
-sock.bind(('192.168.1.' + sys.argv[3], 5005))
+sock.bind(('192.168.1.' + sys.argv[1], 5005))
 
 while True:
   print('\nwaiting to receive message')
