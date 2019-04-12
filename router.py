@@ -31,8 +31,9 @@ while True:
 
   print('received %s bytes from %s' % (len(data), address))
   print(data)
+  print(str(data))
 
-  data_json = json.loads(data)
+  data_json = json.loads(str(data))
 
   # data in JSON format
   # destination
