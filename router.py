@@ -47,4 +47,4 @@ while True:
     server_sent = sock.sendto(server_msg, destination_addr)
 
     # sent = sock.sendto(data, address)
-    print('sent %s bytes forward to %s' % (sent, address))
+    print('sent %s bytes forward to %s' % (server_sent, address))
