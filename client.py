@@ -13,8 +13,8 @@ routers_ip = "192.168.1." + sys.argv[1]
 UDP_PORT = 5005
 
 message = {
-    "destination": "1",
-    "message": "Hello, this is a client"
+    "destination": sys.argv[2],
+    "message": "Hello, this is a client message"
 }
 
 
