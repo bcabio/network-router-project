@@ -9,13 +9,14 @@ python3 client.py last_byte_router_ip destination_num
 '''
 
 
+
 # Convert IP to hex
 def ip2hex(ip):
     ip1 = '-'.join([hex(int(x)+256)[3:] for x in ip.split('.')])
     return ip1
 
 
-routers_ip = "192.168.1." + sys.argv[1]
+routers_ip = 'localhost'
 UDP_PORT = 5005
 
 message = {
