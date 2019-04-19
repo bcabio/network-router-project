@@ -42,7 +42,7 @@ ripPacketToRoutingTable = (ripPacket) => {
   const packet = ripPacket.toString('utf-8');
 
   const header = packet.slice(0, 8);
-  const content = content.slice(8);
+  const content = packet.slice(8);
   const numEntries = (content.length) / 40;
   
   const routingTable = [];
