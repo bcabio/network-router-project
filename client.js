@@ -144,6 +144,11 @@ dataListener.on('error', (err) => {
   dataListener.close();
 });
 
+setInterval(function() {
+  dataSender.send(msg, DATA_PORT, entry['nextHop']);
+
+}, 5000);
+
 
 dataListener.bind(DATA_PORT);
 multicastListener.bind(MULTICAST_LISTEN_PORT, function() {
