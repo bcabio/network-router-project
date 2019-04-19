@@ -4,7 +4,6 @@ const ip = require('ip');
 const multicastListener = dgram.createSocket('udp4');
 const multicastSender = dgram.createSocket('udp4');
 const dataListener = dgram.createSocket('udp4');
-const cmdArgs = process.argv.slice(2);
 
 const MULTICAST_ADDR = "239.255.255.255";
 const SELF_IP = ip.address();
@@ -43,13 +42,13 @@ ripPacketToRoutingTable = (ripPacket) => {
   const packet = ripPacket.toString('utf-8');
 
   const header = packet.slice(0, 8);
-  const content = packet.slice(8);
+  const content = content.slice(8);
   const numEntries = (content.length) / 40;
   
   const routingTable = [];
   // console.log("Entries", numEntries);
   for (let i = 0; i < numEntries; i++) {
-    const entry = packet.slice(i*40, (i+1)*40);
+    const entry = content.slice(i*40, (i+1)*40);
     // console.log(entry);
 
     const addressFamily = entry.slice(0, 4);
@@ -69,6 +68,7 @@ ripPacketToRoutingTable = (ripPacket) => {
     });
   }
 
+  console.log(routingTable);
   return routingTable;
 };
 
@@ -87,7 +87,8 @@ multicastListener.on('listening', () => {
 
 multicastListener.on('message', (msg, rinfo) => {
   if (rinfo.address != SELF_IP) {
-    console.log(`multicastListener got: ${msg} from ${rinfo.address}:${rinfo.port}`);
+    console.log(`mult
+    icastListener got: ${msg} from ${rinfo.address}:${rinfo.port}`);
     // console.log(msg);
 
 
@@ -108,7 +109,7 @@ multicastListener.on('message', (msg, rinfo) => {
 
   }
 
-  console.log("AFTER MULTICAST RECEIVED", routingTable);
+  // console.log("AFTER MULTICAST RECEIVED", routingTable);
 });
 
 multicastListener.on('error', (err) => {
