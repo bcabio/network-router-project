@@ -47,10 +47,10 @@ ripPacketToRoutingTable = (ripPacket) => {
   const numEntries = (content.length) / 40;
   
   const routingTable = [];
-  console.log("Entries", numEntries);
+  // console.log("Entries", numEntries);
   for (let i = 0; i < numEntries; i++) {
     const entry = packet.slice(i*40, (i+1)*40);
-    console.log(entry);
+    // console.log(entry);
 
     const addressFamily = entry.slice(0, 4);
     const routeTag = entry.slice(4, 8);
@@ -75,29 +75,40 @@ ripPacketToRoutingTable = (ripPacket) => {
 /* SEND MULTICAST */
 setInterval(function sendMulticast() {
   const message = routingTableToRIPPacket(routingTable);
-  console.log(message.toString());
+  // console.log(message.toString());
   multicastSender.send(message, 0, message.length, MULTICAST_SEND_PORT, MULTICAST_ADDR);
-}, 1000);
+}, 3000);
 
 /* RECEIVE MULTICAST */
 multicastListener.on('listening', () => {
   const address = multicastListener.address();
   console.log(`multicastListener listening ${address.address}:${address.port}`);
-
-
 });
 
 multicastListener.on('message', (msg, rinfo) => {
   if (rinfo.address != SELF_IP) {
     console.log(`multicastListener got: ${msg} from ${rinfo.address}:${rinfo.port}`);
-    console.log(msg);
+    // console.log(msg);
 
 
     const message = ripPacketToRoutingTable(msg);
-    console.log(message);
 
+    message.forEach((receivedEntry) => {
+      routingTable.forEach((routingTableEntry, index) => {
+        if (receivedEntry['destination'] === routingTableEntry['destination']) {
+          if (receivedEntry['hopCount'] + 1 <= routingTableEntry['hopCount']) {
+            routingTable[index]['hopCount'] = receivedEntry['hopCount'];
+            routingTable[index]['nextHop'] = ip.toBuffer(rinfo.address).toString('hex');
+          }
+        } else {
+          routingTable.push(receivedEntry);
+        }
+      });
+    });
 
   }
+
+  console.log("AFTER MULTICAST RECEIVED", routingTable);
 });
 
 multicastListener.on('error', (err) => {
