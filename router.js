@@ -94,6 +94,7 @@ multicastListener.on('message', (msg, rinfo) => {
 
     const message = ripPacketToRoutingTable(msg);
 
+    const found = false;
     message.forEach((receivedEntry) => {
       routingTable.forEach((routingTableEntry, index) => {
         if (receivedEntry['destination'] === routingTableEntry['destination']) {
@@ -101,10 +102,13 @@ multicastListener.on('message', (msg, rinfo) => {
             routingTable[index]['hopCount'] = receivedEntry['hopCount'];
             routingTable[index]['nextHop'] = ip.toBuffer(rinfo.address).toString('hex');
           }
-        } else {
-          routingTable.push(receivedEntry);
+          found = true;
         }
+
       });
+    if (!found) {
+      routingTable.push(receivedEntry);
+    }
     });
 
   }
