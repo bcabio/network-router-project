@@ -13,14 +13,68 @@ const DATA_PORT = 5000;
 const MULTICAST_LISTEN_PORT = 5005;
 const MULTICAST_SEND_PORT = 5005;
 
+let routingTable = [
+  {
+    "addressFamily": "0002",
+    "routeTag": "0000",
+    "destination": ip.toBuffer(SELF_IP).toString('hex'), // 192.168.1.139
+    "subnetMask": "00000000",
+    "nextHop": "c0a8018b",
+    "hopCount": "00000000",
+  },
+];
 
-let routingTable = {
-  "routing": "table",
+routingTableToRIPPacket = (routingTable) => {
+  const header = new Buffer("02020000");
+  
+  const entries = [];
+  entries.push(header);
+
+  routingTable.forEach((entry) => {
+    Object.keys(entry).forEach((field) => {
+      entries.push(new Buffer(entry[field]));
+    });
+  });
+
+  return Buffer.concat(entries);
+};
+
+ripPacketToRoutingTable = (ripPacket) => {
+  const packet = ripPacket.toString('utf-8');
+
+  const header = packet.slice(0, 8);
+  const content = packet.slice(8);
+  const numEntries = (content.length) / 40;
+  
+  const routingTable = [];
+  console.log("Entries", numEntries);
+  for (let i = 0; i < numEntries; i++) {
+    const entry = packet.slice(i*40, (i+1)*40);
+    console.log(entry);
+
+    const addressFamily = entry.slice(0, 4);
+    const routeTag = entry.slice(4, 8);
+    const destination = entry.slice(8, 16);
+    const subnetMask = entry.slice(16, 24);
+    const nextHop = entry.slice(24, 32);
+    const hopCount = entry.slice(32, 40);
+
+    routingTable.push({
+      "addressFamily": addressFamily,
+      "routeTag": routeTag,
+      "destination": destination,
+      "subnetMask": subnetMask,
+      "nextHop": nextHop,
+      "hopCount": hopCount,
+    });
+  }
+
+  return routingTable;
 };
 
 /* SEND MULTICAST */
 setInterval(function sendMulticast() {
-  const message = Buffer.from(JSON.stringify(routingTable));
+  const message = routingTableToRIPPacket(routingTable);
   console.log(message.toString());
   multicastSender.send(message, 0, message.length, MULTICAST_SEND_PORT, MULTICAST_ADDR);
 }, 1000);
@@ -29,11 +83,20 @@ setInterval(function sendMulticast() {
 multicastListener.on('listening', () => {
   const address = multicastListener.address();
   console.log(`multicastListener listening ${address.address}:${address.port}`);
+
+
 });
 
 multicastListener.on('message', (msg, rinfo) => {
   if (rinfo.address != SELF_IP) {
     console.log(`multicastListener got: ${msg} from ${rinfo.address}:${rinfo.port}`);
+    console.log(msg);
+
+
+    const message = ripPacketToRoutingTable(msg);
+    console.log(message);
+
+
   }
 });
 
