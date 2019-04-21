@@ -26,7 +26,7 @@ let routingTable = [
 
 routingTableToRIPPacket = (routingTable) => {
   const header = new Buffer("02020000");
-  
+
   const entries = [];
   entries.push(header);
 
@@ -45,7 +45,7 @@ ripPacketToRoutingTable = (ripPacket) => {
   const header = packet.slice(0, 8);
   const content = packet.slice(8);
   const numEntries = (content.length) / 40;
-  
+
   const routingTable = [];
   // console.log("Entries", numEntries);
   for (let i = 0; i < numEntries; i++) {
@@ -80,12 +80,13 @@ setInterval(function sendMulticast() {
   multicastSender.send(message, 0, message.length, MULTICAST_SEND_PORT, MULTICAST_ADDR);
 }, 3000);
 
-/* RECEIVE MULTICAST */
+/* LISTEN FOR MULTICAST */
 multicastListener.on('listening', () => {
   const address = multicastListener.address();
   console.log(`multicastListener listening ${address.address}:${address.port}`);
 });
 
+/* WHEN MULTICAST RECEIVED */
 multicastListener.on('message', (msg, rinfo) => {
   if (rinfo.address != SELF_IP) {
     console.log(`multicastListener got: ${msg} from ${rinfo.address}:${rinfo.port}`);
@@ -96,21 +97,21 @@ multicastListener.on('message', (msg, rinfo) => {
     message.forEach((receivedEntry) => {
       routingTable.forEach((routingTableEntry, index) => {
         if (receivedEntry['destination'] === routingTableEntry['destination']) {
+            
           const receivedHopCount = parseInt(receivedEntry['hopCount'], 16);
-          const routingTableHopCount = parseInt(receivedEntry['hopCount'], 16);
-          if (receivedHopCount + 1 <= routingTableHopCount) {
-            let hopCount = parseInt(receivedEntry['hopCount'], 16) + 1;
+          const routingTableHopCount = parseInt(routingTableEntry['hopCount'], 16);
+
+          if (receivedHopCount + 1 < routingTableHopCount) {
+            let hopCount = receivedHopCount + 1;
             routingTable[index]['hopCount'] = hopCount.toString(16).padStart(8, "0");
             routingTable[index]['nextHop'] = ip.toBuffer(rinfo.address).toString('hex');
           }
           found = true;
         }
-
       });
-
-    if (!found) 
-      routingTable.push(receivedEntry);
-
+      // if destination does not exist in routing table
+      if (!found)
+        routingTable.push(receivedEntry);
     });
   }
 });
@@ -126,6 +127,7 @@ dataListener.on('listening', () => {
   console.log(`dataListener listening ${address.address}:${address.port}`);
 });
 
+/* WHEN DATA MESSAGE RECEIVED */
 dataListener.on('message', (msg, rinfo) => {
   console.log(`dataListener got: ${msg} from ${rinfo.address}:${rinfo.port}`);
 
@@ -135,7 +137,7 @@ dataListener.on('message', (msg, rinfo) => {
     if (entry['destination'] === message['destination']) {
       dataSender.send(msg, DATA_PORT, entry['nextHop']);
     } else {
-      // drop
+      // can't reach the destination so drop the packet
     }
   });
 
@@ -148,6 +150,7 @@ dataListener.on('error', (err) => {
 
 
 dataListener.bind(DATA_PORT);
+
 multicastListener.bind(MULTICAST_LISTEN_PORT, function() {
   multicastListener.addMembership(MULTICAST_ADDR);
 });
