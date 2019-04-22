@@ -19,7 +19,7 @@ let routingTable = [
     "routeTag": "0000",
     "destination": ip.toBuffer(SELF_IP).toString('hex'), // 192.168.1.139
     "subnetMask": "00000000",
-    "nextHop": "c0a8018b",
+    "nextHop": ip.toBuffer(SELF_IP).toString('hex'),
     "hopCount": "00000000",
   },
 ];
@@ -47,10 +47,8 @@ ripPacketToRoutingTable = (ripPacket) => {
   const numEntries = (content.length) / 40;
 
   const routingTable = [];
-  // console.log("Entries", numEntries);
   for (let i = 0; i < numEntries; i++) {
     const entry = content.slice(i*40, (i+1)*40);
-    // console.log(entry);
 
     const addressFamily = entry.slice(0, 4);
     const routeTag = entry.slice(4, 8);
@@ -76,7 +74,6 @@ ripPacketToRoutingTable = (ripPacket) => {
 /* SEND MULTICAST */
 setInterval(function sendMulticast() {
   const message = routingTableToRIPPacket(routingTable);
-  // console.log(message.toString());
   multicastSender.send(message, 0, message.length, MULTICAST_SEND_PORT, MULTICAST_ADDR);
 }, 3000);
 
