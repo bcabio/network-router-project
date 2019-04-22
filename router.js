@@ -100,7 +100,6 @@ multicastListener.on('message', (msg, rinfo) => {
             
           const receivedHopCount = parseInt(receivedEntry['hopCount'], 16);
           const routingTableHopCount = parseInt(routingTableEntry['hopCount'], 16);
-
           if (receivedHopCount + 1 < routingTableHopCount) {
             let hopCount = receivedHopCount + 1;
             routingTable[index]['hopCount'] = hopCount.toString(16).padStart(8, "0");
@@ -110,8 +109,10 @@ multicastListener.on('message', (msg, rinfo) => {
         }
       });
       // if destination does not exist in routing table
-      if (!found)
-        routingTable.push(receivedEntry);
+      if (!found) {
+          receivedEntry['hopCount'] = (parseInt(receivedEntry['hopCount'], 16) + 1).toString(16).padStart(8, "0");
+          routingTable.push(receivedEntry);
+      }
     });
   }
 });
