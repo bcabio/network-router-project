@@ -75,7 +75,7 @@ ripPacketToRoutingTable = (ripPacket) => {
 setInterval(function sendMulticast() {
   const message = routingTableToRIPPacket(routingTable);
   multicastSender.send(message, 0, message.length, MULTICAST_SEND_PORT, MULTICAST_ADDR);
-}, 3000);
+}, 30000);
 
 /* LISTEN FOR MULTICAST */
 multicastListener.on('listening', () => {

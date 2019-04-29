@@ -131,13 +131,18 @@ dataListener.on('message', (msg, rinfo) => {
 
     const message = JSON.parse(msg);
 
-    routingTable.forEach((entry) => {
-        if (entry['destination'] === message['destination']) {
-            dataSender.send(msg, DATA_PORT, entry['nextHop']);
-        } else {
-            // can't reach the destination so drop the packet
-        }
-    });
+    if(message['destination'] === ip.toBuffer(SELF_IP).toString('hex')) {
+        // this server is the destination for the packet
+        console.log(message['body']);
+    } else {
+        routingTable.forEach((entry) => {
+            if (entry['destination'] === message['destination']) {
+                dataSender.send(msg, DATA_PORT, entry['nextHop']);
+            } else {
+                // can't reach the destination so drop the packet
+            }
+        });
+    }
 
 });
 
@@ -147,23 +152,8 @@ dataListener.on('error', (err) => {
 });
 
 
-setInterval(function() {
-  const msg = "{ \"destination\": \"c0a8015e\", \"body\": \"hello server\" }";
-  const message = JSON.parse(msg);
-
-    routingTable.forEach((entry) => {
-        if (entry['destination'] === message['destination']) {
-            dataSender.send(msg, DATA_PORT, entry['nextHop']);
-            console.log("Message sent to c0a8015e");
-        } else {
-            console.log("Path to c0a8015e cannot be resolved");
-        }
-    });
-}, 5000);
-
-
 dataListener.bind(DATA_PORT);
 
 multicastListener.bind(MULTICAST_LISTEN_PORT, function() {
-  multicastListener.addMembership(MULTICAST_ADDR);
+    multicastListener.addMembership(MULTICAST_ADDR);
 });
